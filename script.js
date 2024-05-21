@@ -16,26 +16,89 @@ document.getElementById('sendButton').addEventListener('click', async function()
     document.getElementById('sendButton').disabled = true;
 
     try {
-        const response = await fetch('https://api.openai.com/v1/assistants/asst_BvrFPSsSNhed6wOdnjwjH2GK/completions', {
+        const apiKey = 'sk-proj-gDAF70B8w1sU8B9u7tOPT3BlbkFJfNxEtahXNUeTuzhH91Oa';
+        const assistantId = 'asst_BvrFPSsSNhed6wOdnjwjH2GK';
+
+        // Create a thread
+        const threadResponse = await fetch('https://api.openai.com/v1/assistants/threads', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer sk-proj-gDAF70B8w1sU8B9u7tOPT3BlbkFJfNxEtahXNUeTuzhH91Oa',
-                'OpenAI-Beta': 'assistants=v2'
+                'Authorization': `Bearer ${apiKey}`,
+                'OpenAI-Beta': 'assistants=v1'
+            },
+            body: JSON.stringify({})
+        });
+
+        if (!threadResponse.ok) {
+            throw new Error(`Error: ${threadResponse.status} ${threadResponse.statusText}`);
+        }
+
+        const threadData = await threadResponse.json();
+        const threadId = threadData.id;
+
+        // Append user message to thread
+        const appendResponse = await fetch(`https://api.openai.com/v1/assistants/threads/${threadId}/messages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+                'OpenAI-Beta': 'assistants=v1'
             },
             body: JSON.stringify({
-                model: 'text-davinci-002', // Make sure to use a compatible model
-                messages: [{ role: 'user', content: userInput }]
+                role: 'user',
+                content: userInput
             })
         });
 
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        if (!appendResponse.ok) {
+            throw new Error(`Error: ${appendResponse.status} ${appendResponse.statusText}`);
         }
 
-        const data = await response.json();
-        const assistantResponse = data.choices[0].message.content;
-        responseContainer.textContent = assistantResponse;
+        // Create a run
+        const runResponse = await fetch(`https://api.openai.com/v1/assistants/runs`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+                'OpenAI-Beta': 'assistants=v1'
+            },
+            body: JSON.stringify({
+                assistant_id: assistantId,
+                thread_id: threadId
+            })
+        });
+
+        if (!runResponse.ok) {
+            throw new Error(`Error: ${runResponse.status} ${runResponse.statusText}`);
+        }
+
+        const runData = await runResponse.json();
+        const runId = runData.id;
+
+        // Wait for the run to complete and get the response
+        let aiResponse = null;
+        while (!aiResponse) {
+            const statusResponse = await fetch(`https://api.openai.com/v1/assistants/runs/${runId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                    'OpenAI-Beta': 'assistants=v1'
+                }
+            });
+
+            if (!statusResponse.ok) {
+                throw new Error(`Error: ${statusResponse.status} ${statusResponse.statusText}`);
+            }
+
+            const statusData = await statusResponse.json();
+            if (statusData.status === 'completed') {
+                aiResponse = statusData.result.messages.find(msg => msg.role === 'assistant').content;
+            }
+        }
+
+        responseContainer.textContent = aiResponse;
     } catch (error) {
         responseContainer.textContent = `Error: ${error.message}`;
     } finally {
