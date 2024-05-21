@@ -24,6 +24,7 @@ document.getElementById('sendButton').addEventListener('click', async function()
                 'OpenAI-Beta': 'assistants=v2'
             },
             body: JSON.stringify({
+                model: 'text-davinci-002', // Make sure to use a compatible model
                 messages: [{ role: 'user', content: userInput }]
             })
         });
