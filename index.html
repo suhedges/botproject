@@ -38,7 +38,6 @@
             bottom: 100px;
             right: 20px;
             width: 350px;
-            padding: 20px;
             border-radius: 10px;
             background-color: #fff;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -54,22 +53,36 @@
                 transform: translateY(0);
             }
         }
-        .widget-container h2 {
-            margin-top: 0;
-            text-align: center;
-            font-size: 24px;
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .widget-header h2 {
+            margin: 0;
+            font-size: 20px;
             color: #333;
         }
-        .widget-container textarea {
+        .widget-header .close-btn {
+            font-size: 18px;
+            cursor: pointer;
+            color: #888;
+        }
+        .widget-body {
+            padding: 20px;
+        }
+        .widget-body textarea {
             width: 100%;
-            height: 100px;
+            height: 80px;
             margin-bottom: 10px;
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ddd;
             font-size: 14px;
         }
-        .widget-container button {
+        .widget-body button {
             width: 100%;
             padding: 10px;
             border: none;
@@ -80,14 +93,14 @@
             font-size: 16px;
             transition: background-color 0.3s, transform 0.3s;
         }
-        .widget-container button:disabled {
+        .widget-body button:disabled {
             background-color: #cccccc;
         }
-        .widget-container button:hover {
+        .widget-body button:hover {
             background-color: #0056b3;
             transform: scale(1.05);
         }
-        .widget-container .response {
+        .response-container {
             margin-top: 10px;
             padding: 10px;
             border-radius: 5px;
@@ -95,17 +108,38 @@
             font-size: 14px;
             color: #333;
         }
+        .response-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .response-item:last-child {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>
     <div class="floating-icon" id="floatingIcon">+</div>
     <div class="widget-container" id="widgetContainer">
-        <h2>GPT Assistant</h2>
-        <textarea id="userInput" placeholder="Type your message here..."></textarea>
-        <button id="sendButton">Send</button>
-        <div id="responseContainer" class="response"></div>
+        <div class="widget-header">
+            <h2>GPT Assistant</h2>
+            <span class="close-btn" id="closeBtn">&times;</span>
+        </div>
+        <div class="widget-body">
+            <textarea id="userInput" placeholder="Type your message here..."></textarea>
+            <button id="sendButton">Send</button>
+            <div id="responseContainer" class="response-container"></div>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        document.getElementById('floatingIcon').addEventListener('click', function() {
+            document.getElementById('widgetContainer').style.display = 'block';
+        });
+        document.getElementById('closeBtn').addEventListener('click', function() {
+            document.getElementById('widgetContainer').style.display = 'none';
+        });
+    </script>
 </body>
 </html>
