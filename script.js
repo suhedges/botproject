@@ -1,6 +1,10 @@
 document.getElementById('floatingIcon').addEventListener('click', function() {
     const widgetContainer = document.getElementById('widgetContainer');
-    widgetContainer.style.display = widgetContainer.style.display === 'none' || widgetContainer.style.display === '' ? 'block' : 'none';
+    widgetContainer.style.display = widgetContainer.style.display === 'none' || widgetContainer.style.display === '' ? 'flex' : 'none';
+});
+
+document.getElementById('closeBtn').addEventListener('click', function() {
+    document.getElementById('widgetContainer').style.display = 'none';
 });
 
 document.getElementById('sendButton').addEventListener('click', async function() {
@@ -12,14 +16,15 @@ document.getElementById('sendButton').addEventListener('click', async function()
         return;
     }
 
-    responseContainer.textContent = 'Loading...';
-    document.getElementById('sendButton').disabled = true;
+    addMessage(userInput, 'user');
+    document.getElementById('userInput').value = '';
+
+    responseContainer.scrollTop = responseContainer.scrollHeight; // Scroll to the bottom
 
     try {
-        const apiKey = 'sk-proj-gDAF70B8w1sU8B9u7tOPT3BlbkFJfNxEtahXNUeTuzhH91Oa';
-        const assistantId = 'asst_BvrFPSsSNhed6wOdnjwjH2GK';
+        const apiKey = 'your-api-key';
+        const assistantId = 'your-assistant-id';
 
-        // Create a thread
         const threadResponse = await fetch('https://api.openai.com/v1/assistants/threads', {
             method: 'POST',
             headers: {
@@ -37,7 +42,6 @@ document.getElementById('sendButton').addEventListener('click', async function()
         const threadData = await threadResponse.json();
         const threadId = threadData.id;
 
-        // Append user message to thread
         const appendResponse = await fetch(`https://api.openai.com/v1/assistants/threads/${threadId}/messages`, {
             method: 'POST',
             headers: {
@@ -55,7 +59,6 @@ document.getElementById('sendButton').addEventListener('click', async function()
             throw new Error(`Error: ${appendResponse.status} ${appendResponse.statusText}`);
         }
 
-        // Create a run
         const runResponse = await fetch(`https://api.openai.com/v1/assistants/runs`, {
             method: 'POST',
             headers: {
@@ -76,7 +79,6 @@ document.getElementById('sendButton').addEventListener('click', async function()
         const runData = await runResponse.json();
         const runId = runData.id;
 
-        // Wait for the run to complete and get the response
         let aiResponse = null;
         while (!aiResponse) {
             const statusResponse = await fetch(`https://api.openai.com/v1/assistants/runs/${runId}`, {
@@ -98,10 +100,16 @@ document.getElementById('sendButton').addEventListener('click', async function()
             }
         }
 
-        responseContainer.textContent = aiResponse;
+        addMessage(aiResponse, 'assistant');
     } catch (error) {
-        responseContainer.textContent = `Error: ${error.message}`;
-    } finally {
-        document.getElementById('sendButton').disabled = false;
+        addMessage(`Error: ${error.message}`, 'assistant');
     }
 });
+
+function addMessage(text, sender) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('response-item', sender);
+    messageElement.textContent = text;
+    document.getElementById('responseContainer').appendChild(messageElement);
+    messageElement.scrollIntoView();
+}
