@@ -42,6 +42,8 @@
             background-color: #fff;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             animation: fadeIn 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
         }
         @keyframes fadeIn {
             from {
@@ -71,20 +73,48 @@
             color: #888;
         }
         .widget-body {
-            padding: 20px;
+            padding: 10px;
+            flex: 1;
+            overflow-y: auto;
         }
-        .widget-body textarea {
-            width: 100%;
-            height: 80px;
+        .widget-footer {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            display: flex;
+        }
+        .widget-body .response-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .widget-body .response-item {
             margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+            font-size: 14px;
+        }
+        .widget-body .response-item.user {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+        }
+        .widget-body .response-item.assistant {
+            background-color: #f1f1f1;
+            color: #333;
+            align-self: flex-start;
+        }
+        .widget-footer textarea {
+            flex: 1;
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ddd;
             font-size: 14px;
+            resize: none;
         }
-        .widget-body button {
-            width: 100%;
-            padding: 10px;
+        .widget-footer button {
+            margin-left: 10px;
+            padding: 10px 15px;
             border: none;
             border-radius: 5px;
             background-color: #007bff;
@@ -93,37 +123,12 @@
             font-size: 16px;
             transition: background-color 0.3s, transform 0.3s;
         }
-        .widget-body button:disabled {
+        .widget-footer button:disabled {
             background-color: #cccccc;
         }
-        .widget-body button:hover {
+        .widget-footer button:hover {
             background-color: #0056b3;
             transform: scale(1.05);
-        }
-        .response-container {
-            margin-top: 10px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .response-item {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 10px;
-            max-width: 80%;
-            word-wrap: break-word;
-            font-size: 14px;
-        }
-        .response-item.user {
-            background-color: #007bff;
-            color: white;
-            align-self: flex-end;
-            margin-left: auto;
-        }
-        .response-item.assistant {
-            background-color: #f1f1f1;
-            color: #333;
-            align-self: flex-start;
-            margin-right: auto;
         }
     </style>
 </head>
@@ -135,39 +140,14 @@
             <span class="close-btn" id="closeBtn">&times;</span>
         </div>
         <div class="widget-body">
+            <div class="response-container" id="responseContainer"></div>
+        </div>
+        <div class="widget-footer">
             <textarea id="userInput" placeholder="Type your message here..."></textarea>
             <button id="sendButton">Send</button>
-            <div id="responseContainer" class="response-container"></div>
         </div>
     </div>
 
-    <script>
-        document.getElementById('floatingIcon').addEventListener('click', function() {
-            document.getElementById('widgetContainer').style.display = 'block';
-        });
-        document.getElementById('closeBtn').addEventListener('click', function() {
-            document.getElementById('widgetContainer').style.display = 'none';
-        });
-
-        document.getElementById('sendButton').addEventListener('click', function() {
-            const userInput = document.getElementById('userInput').value;
-            if (userInput.trim()) {
-                addMessage(userInput, 'user');
-                document.getElementById('userInput').value = '';
-                // Simulate an assistant response (replace this with actual API call)
-                setTimeout(() => {
-                    addMessage('This is a simulated response from the assistant.', 'assistant');
-                }, 1000);
-            }
-        });
-
-        function addMessage(text, sender) {
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('response-item', sender);
-            messageElement.textContent = text;
-            document.getElementById('responseContainer').appendChild(messageElement);
-            messageElement.scrollIntoView();
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
