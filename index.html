@@ -102,20 +102,28 @@
         }
         .response-container {
             margin-top: 10px;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f1f1f1;
-            font-size: 14px;
-            color: #333;
+            max-height: 300px;
+            overflow-y: auto;
         }
         .response-item {
             margin-bottom: 10px;
             padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+            font-size: 14px;
         }
-        .response-item:last-child {
-            margin-bottom: 0;
+        .response-item.user {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .response-item.assistant {
+            background-color: #f1f1f1;
+            color: #333;
+            align-self: flex-start;
+            margin-right: auto;
         }
     </style>
 </head>
@@ -140,6 +148,26 @@
         document.getElementById('closeBtn').addEventListener('click', function() {
             document.getElementById('widgetContainer').style.display = 'none';
         });
+
+        document.getElementById('sendButton').addEventListener('click', function() {
+            const userInput = document.getElementById('userInput').value;
+            if (userInput.trim()) {
+                addMessage(userInput, 'user');
+                document.getElementById('userInput').value = '';
+                // Simulate an assistant response (replace this with actual API call)
+                setTimeout(() => {
+                    addMessage('This is a simulated response from the assistant.', 'assistant');
+                }, 1000);
+            }
+        });
+
+        function addMessage(text, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('response-item', sender);
+            messageElement.textContent = text;
+            document.getElementById('responseContainer').appendChild(messageElement);
+            messageElement.scrollIntoView();
+        }
     </script>
 </body>
 </html>
