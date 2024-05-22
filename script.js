@@ -22,9 +22,10 @@ document.getElementById('sendButton').addEventListener('click', async function()
     responseContainer.scrollTop = responseContainer.scrollHeight; // Scroll to the bottom
 
     try {
-        const apiKey = 'your-api-key';
-        const assistantId = 'your-assistant-id';
+        const apiKey = 'YOUR_API_KEY';  // Replace with your actual OpenAI API key
+        const assistantId = 'YOUR_ASSISTANT_ID';  // Replace with your actual Assistant ID
 
+        // Create a new thread
         const threadResponse = await fetch('https://api.openai.com/v1/assistants/threads', {
             method: 'POST',
             headers: {
@@ -42,6 +43,7 @@ document.getElementById('sendButton').addEventListener('click', async function()
         const threadData = await threadResponse.json();
         const threadId = threadData.id;
 
+        // Append the user message to the thread
         const appendResponse = await fetch(`https://api.openai.com/v1/assistants/threads/${threadId}/messages`, {
             method: 'POST',
             headers: {
@@ -59,7 +61,8 @@ document.getElementById('sendButton').addEventListener('click', async function()
             throw new Error(`Error: ${appendResponse.status} ${appendResponse.statusText}`);
         }
 
-        const runResponse = await fetch(`https://api.openai.com/v1/assistants/runs`, {
+        // Create a run to get the assistant's response
+        const runResponse = await fetch('https://api.openai.com/v1/assistants/runs', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -79,6 +82,7 @@ document.getElementById('sendButton').addEventListener('click', async function()
         const runData = await runResponse.json();
         const runId = runData.id;
 
+        // Poll for the run completion and get the response
         let aiResponse = null;
         while (!aiResponse) {
             const statusResponse = await fetch(`https://api.openai.com/v1/assistants/runs/${runId}`, {
@@ -97,6 +101,8 @@ document.getElementById('sendButton').addEventListener('click', async function()
             const statusData = await statusResponse.json();
             if (statusData.status === 'completed') {
                 aiResponse = statusData.result.messages.find(msg => msg.role === 'assistant').content;
+            } else {
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before polling again
             }
         }
 
